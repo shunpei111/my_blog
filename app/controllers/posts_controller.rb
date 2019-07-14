@@ -2,9 +2,9 @@ class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]      #メソッドをシンボルで呼ぶ。先にしたいことを書く
   #
   def index
-    @posts = Post.all.order(created_at: :desc)
+    
     #最新記事用
-    @new_posts = Post.all.order(created_at: :desc).limit(5)
+    @new_posts = Post.all.find_newest_article
     #railsのルールとして複数形に必要があるのか
   end
 
@@ -14,8 +14,11 @@ class PostsController < ApplicationController
 
   def create
     @post = Post.new(post_params)
+    @post.attributes = {
+      user_id: current_user.id
+    }
     if @post.save
-    redirect_to @post, notice: "ブログを登録しました"
+    redirect_to user_post_path(current_user, @post), notice: "ブログを登録しました"
     else
       render :new #viewだけを表示するので@postの中身は変わらない
     end
@@ -32,7 +35,7 @@ class PostsController < ApplicationController
 
   def update
     if @post.update(post_params)
-      redirect_to @post, notice: "ブログを更新しました"
+      redirect_to user_post_path(current_user, @post), notice: "ブログを更新しました"
     else 
       render :edit
     end
