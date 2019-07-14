@@ -1,8 +1,10 @@
 class PostsController < ApplicationController
+  before_action :set_post, only: [:show, :edit, :update, :destroy]      #メソッドをシンボルで呼ぶ。先にしたいことを書く
+  #
   def index
-    @posts = Post.all
+    @posts = Post.all.order(created_at: :desc)
     #最新記事用
-    @new_posts = Post.all 
+    @new_posts = Post.all.order(created_at: :desc).limit(5)
     #railsのルールとして複数形に必要があるのか
   end
 
@@ -20,24 +22,23 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = Post.find(params[:id])
+    
   end
 
   def edit 
-    @post = Post.find(params[:id]) #データを持ってこないといけない
+    
     
   end
 
   def update
-    @post = Post.find(params[:id])
     if @post.update(post_params)
       redirect_to @post, notice: "ブログを更新しました"
     else 
       render :edit
     end
   end
-  def destroy 
-      @post = Post.find(params[:id]) #一件取得することを意味する
+  def destroy
+      
       @post.destroy
       redirect_to posts_path, notice: "ブログを削除しました" #post_pathの意味を知りたい
 
@@ -54,4 +55,9 @@ class PostsController < ApplicationController
   def post_params
     params.require(:post).permit(:title, :body) 
   end
+
+  def set_post
+    @post = Post.find(params[:id])  
+  end
+  #なかでしか使わないものはできる限りprivateの中に作っていく。
 end
